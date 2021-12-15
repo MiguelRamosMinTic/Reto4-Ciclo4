@@ -36,6 +36,5 @@ public class CloneRepository {
     public void deleteById (Integer id){
         repository.deleteById(id);
     }
-
     
 }

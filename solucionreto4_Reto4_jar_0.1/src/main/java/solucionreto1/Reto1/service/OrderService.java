@@ -1,14 +1,16 @@
 package solucionreto1.Reto1.service;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
-import solucionreto1.Reto1.model.Clone;
 import solucionreto1.Reto1.model.Order;
-import solucionreto1.Reto1.repository.CloneRepository;
 import solucionreto1.Reto1.repository.OrderRepository;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 /**
  *
@@ -21,6 +23,9 @@ public class OrderService {
     @Autowired
     private OrderRepository repository;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    
     public List<Order> getAll() {
         return repository.getAll();
     }
@@ -99,8 +104,25 @@ public class OrderService {
         return repository.getOrderBySalesMan(id);
     }
     
-    public List<Order> getRegisterDay(String registerDay, Integer id){
-        return repository.getOrderRegisterDate(registerDay, id);
+//    public List<Order> getRegisterDay(String registerDay, Integer id){
+//        return repository.getOrderRegisterDate(registerDay, id);
+//    }
+    
+    public List<Order> getRegisterDay(String dateStr, Integer id) {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Query query = new Query();
+
+        Criteria dateCriteria = Criteria.where("registerDay")
+                .gte(LocalDate.parse(dateStr, dtf).minusDays(1).atStartOfDay())
+                .lt(LocalDate.parse(dateStr, dtf).plusDays(1).atStartOfDay())
+                .and("salesMan.id").is(id);
+        query.addCriteria(dateCriteria);
+
+        List<Order> orders = mongoTemplate.find(query, Order.class);
+
+        return orders;
+
     }
     
 }

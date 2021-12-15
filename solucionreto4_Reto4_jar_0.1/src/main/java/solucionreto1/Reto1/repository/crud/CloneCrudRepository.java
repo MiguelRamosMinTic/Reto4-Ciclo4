@@ -8,5 +8,4 @@ import solucionreto1.Reto1.model.Clone;
  * @author Miguel Ramos
  */
 public interface CloneCrudRepository extends MongoRepository<Clone, Integer>{
-    
 }
